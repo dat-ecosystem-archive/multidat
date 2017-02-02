@@ -7,9 +7,9 @@ Manage multiple [dat][dat] instances.
 ## Usage
 ```js
 var Multidat = require('multidat')
-var level = require('level')
+var toilet = require('toiletdb')
 
-var db = level('/tmp/dat')
+var db = toilet('/tmp/dat')
 Multidat(db, function (err, multidat) {
   if (err) throw err
 
@@ -29,7 +29,7 @@ Multidat(db, function (err, multidat) {
 
 ## API
 ### Multidat(db, callback(err, multidat))
-Creat a new Multidat instance. Takes a `level` db and a callback.
+Creat a new Multidat instance. Takes a `toiletdb` instance and a callback.
 
 ### multidat.create(opts, callback(err, dat))
 Create a new `dat` archive.
