@@ -1,4 +1,5 @@
 var hyperdiscovery = require('hyperdiscovery')
+var toilet = require('toiletdb/inmemory')
 var hyperdrive = require('hyperdrive')
 var rimraf = require('rimraf')
 var mkdirp = require('mkdirp')
@@ -20,7 +21,7 @@ tape('multidat = Multidat()', function (t) {
 tape('multidat.create()', function (t) {
   t.test('should assert input types', function (t) {
     t.plan(4)
-    var db = memdb()
+    var db = toilet({})
     Multidat(db, function (err, multidat) {
       t.ifError(err, 'no error')
       t.throws(multidat.create.bind(null), 'string')
@@ -31,7 +32,7 @@ tape('multidat.create()', function (t) {
 
   t.test('should create a dat', function (t) {
     t.plan(3)
-    var db = memdb()
+    var db = toilet({})
     Multidat(db, function (err, multidat) {
       t.ifError(err, 'no error')
       var location = path.join('/tmp', String(Date.now()))
@@ -46,7 +47,7 @@ tape('multidat.create()', function (t) {
 
   t.test('created dat should not be exposed to the network', function (t) {
     t.plan(3)
-    var db = memdb()
+    var db = toilet({})
     Multidat(db, function (err, multidat) {
       t.ifError(err, 'no error')
       var location = path.join('/tmp', String(Date.now()))
@@ -64,7 +65,7 @@ tape('multidat.list()', function (t) {
   t.test('should list all dats', function (t) {
     t.plan(3)
 
-    var db = memdb()
+    var db = toilet({})
     Multidat(db, function (err, multidat) {
       t.ifError(err, 'no error')
 
@@ -84,7 +85,7 @@ tape('multidat.close()', function (t) {
   t.test('should be able to close a dat by its key', function (t) {
     t.plan(5)
 
-    var db = memdb()
+    var db = toilet({})
     Multidat(db, function (err, multidat) {
       t.ifError(err, 'no error')
 
@@ -114,7 +115,7 @@ tape('multidat.readManifest', function (t) {
     var swarm = hyperdiscovery(archive)
     ws.end(JSON.stringify({ name: 'hello-planet' }))
 
-    var db = memdb()
+    var db = toilet({})
     Multidat(db, function (err, multidat) {
       t.ifError(err, 'no error')
 
