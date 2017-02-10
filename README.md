@@ -48,7 +48,7 @@ deprecated once `dat` archives provide a built-in method to return archives.
 - [datproject/dat][dat]
 - [mafintosh/hyperdrive](https://github.com/mafintosh/hyperdrive)
 - [mafintosh/hypercore-archiver](https://github.com/mafintosh/hypercore-archiver)
-- [yoshuawuyts/multidrive](https://github.com/yoshuawuyts/multidrive)
+- [datproject/multidrive](https://github.com/datproject/multidrive)
 - [juliangruber/hyperdrive-stats](https://github.com/juliangruber/hyperdrive-stats)
 - [juliangruber/dat-encoding](https://github.com/juliangruber/dat-encoding)
 
@@ -59,10 +59,10 @@ deprecated once `dat` archives provide a built-in method to return archives.
 [1]: https://nodejs.org/api/documentation.html#documentation_stability_index
 [2]: https://img.shields.io/npm/v/multidat.svg?style=flat-square
 [3]: https://npmjs.org/package/multidat
-[4]: https://img.shields.io/travis/yoshuawuyts/multidat/master.svg?style=flat-square
-[5]: https://travis-ci.org/yoshuawuyts/multidat
-[6]: https://img.shields.io/codecov/c/github/yoshuawuyts/multidat/master.svg?style=flat-square
-[7]: https://codecov.io/github/yoshuawuyts/multidat
+[4]: https://img.shields.io/travis/datproject/multidat/master.svg?style=flat-square
+[5]: https://travis-ci.org/datproject/multidat
+[6]: https://img.shields.io/codecov/c/github/datproject/multidat/master.svg?style=flat-square
+[7]: https://codecov.io/github/datproject/multidat
 [8]: http://img.shields.io/npm/dm/multidat.svg?style=flat-square
 [9]: https://npmjs.org/package/multidat
 [10]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square
