@@ -13,7 +13,7 @@ function Multidat (db, cb) {
   assert.equal(typeof cb, 'function', 'multidat: cb should be type function')
 
   multidrive(db, createArchive, closeArchive, function (err, drive) {
-    if (err) return cb(explain(err, 'multidat: error creating multidrive'))
+    if (err) return cb(err)
     var multidat = {
       readManifest: readManifest,
       create: create,
