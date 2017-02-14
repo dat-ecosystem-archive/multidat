@@ -31,7 +31,7 @@ tape('multidat.create()', function (t) {
   })
 
   t.test('should create a dat', function (t) {
-    t.plan(3)
+    t.plan(4)
     var db = toilet({})
     Multidat(db, function (err, multidat) {
       t.ifError(err, 'no error')
@@ -40,7 +40,10 @@ tape('multidat.create()', function (t) {
       multidat.create(location, function (err, dat) {
         t.ifError(err, 'no error')
         t.equal(typeof dat, 'object', 'dat exists')
-        rimraf.sync(location)
+        dat.close(function (err) {
+          t.ifError(err, 'no error')
+          rimraf.sync(location)
+        })
       })
     })
   })
@@ -54,15 +57,19 @@ tape('multidat.create()', function (t) {
       mkdirp.sync(location)
       multidat.create(location, function (err, dat) {
         t.ifError(err, 'no error')
-        rimraf.sync(location)
+        dat.close(function (err) {
+          t.ifError(err, 'no error')
+          rimraf.sync(location)
+        })
       })
     })
   })
 })
 
+
 tape('multidat.list()', function (t) {
   t.test('should list all dats', function (t) {
-    t.plan(3)
+    t.plan(4)
 
     var db = toilet({})
     Multidat(db, function (err, multidat) {
@@ -74,7 +81,10 @@ tape('multidat.list()', function (t) {
         t.ifError(err, 'no error')
         var dats = multidat.list()
         t.equal(dats.length, 1, 'one dat')
-        rimraf.sync(location)
+        dat.close(function (err) {
+          t.ifError(err, 'no error')
+          rimraf.sync(location)
+        })
       })
     })
   })
@@ -82,7 +92,7 @@ tape('multidat.list()', function (t) {
 
 tape('multidat.close()', function (t) {
   t.test('should be able to close a dat by its key', function (t) {
-    t.plan(5)
+    t.plan(4)
 
     var db = toilet({})
     Multidat(db, function (err, multidat) {
@@ -96,7 +106,6 @@ tape('multidat.close()', function (t) {
           t.ifError(err, 'no error')
           var dats = multidat.list()
           t.equal(dats.length, 0, 'no dats')
-          t.equal(dat.db._status, 'closed', 'db is closed')
           rimraf.sync(location)
         })
       })
@@ -127,7 +136,6 @@ tape('multidat.readManifest', function (t) {
       multidat.create(location, opts, function (err, dat) {
         t.ifError(err, 'no error')
 
-        dat.joinNetwork()
         multidat.readManifest(dat, function (err, manifest) {
           t.ifError(err, 'no err')
           t.equal(typeof manifest, 'object', 'right type')
@@ -143,3 +151,4 @@ tape('multidat.readManifest', function (t) {
     })
   })
 })
+
