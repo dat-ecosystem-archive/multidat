@@ -66,7 +66,6 @@ tape('multidat.create()', function (t) {
   })
 })
 
-
 tape('multidat.list()', function (t) {
   t.test('should list all dats', function (t) {
     t.plan(4)

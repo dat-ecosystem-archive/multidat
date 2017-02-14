@@ -40,7 +40,7 @@ function Multidat (db, cb) {
     }
   })
 
-  function createArchive (data, cb) {
+  function createArchive (data, done) {
     var dir = data.dir
     var opts = data.opts
     var worker = new Worker({
@@ -48,7 +48,7 @@ function Multidat (db, cb) {
       key: opts.key,
       opts: opts
     })
-    worker.start(() => cb(null, worker))
+    worker.start(() => done(null, worker))
   }
 
   function closeArchive (dat, done) {
