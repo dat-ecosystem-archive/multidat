@@ -72,6 +72,7 @@ function readManifest (dat, done) {
   })
 
   function sink (data) {
+    listStream.destroy()
     var res = parse(data)
     if (res.err) return done(explain(res.err, "multidat.readManifest: couldn't parse dat.json file"))
     done(null, res.value)
