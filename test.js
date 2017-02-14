@@ -54,7 +54,6 @@ tape('multidat.create()', function (t) {
       mkdirp.sync(location)
       multidat.create(location, function (err, dat) {
         t.ifError(err, 'no error')
-        t.notOk(dat.network, 'no network exposed yet')
         rimraf.sync(location)
       })
     })

@@ -3,7 +3,7 @@ var explain = require('explain-error')
 var parse = require('fast-json-parse')
 var concat = require('concat-stream')
 var assert = require('assert')
-var dat = require('dat-node')
+var Worker = require('dat-worker')
 var pump = require('pump')
 
 module.exports = Multidat
@@ -40,10 +40,15 @@ function Multidat (db, cb) {
     }
   })
 
-  function createArchive (data, done) {
+  function createArchive (data, cb) {
     var dir = data.dir
     var opts = data.opts
-    dat(dir, opts, done)
+    var worker = new Worker({
+      dir,
+      key: opts.key,
+      opts: opts
+    })
+    worker.start(() => cb(null, worker))
   }
 
   function closeArchive (dat, done) {
