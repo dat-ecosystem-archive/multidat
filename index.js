@@ -3,14 +3,24 @@ var explain = require('explain-error')
 var parse = require('fast-json-parse')
 var concat = require('concat-stream')
 var assert = require('assert')
-var Worker = require('dat-worker')
+var dat = require('dat-node')
+var worker = require('dat-worker')
 var pump = require('pump')
 
 module.exports = Multidat
 
-function Multidat (db, cb) {
+function Multidat (db, opts, cb) {
+  if (!cb) {
+    cb = opts
+    opts = {}
+  }
+
   assert.equal(typeof db, 'object', 'multidat: db should be type object')
   assert.equal(typeof cb, 'function', 'multidat: cb should be type function')
+
+  var datFactory = (opts.worker)
+    ? worker
+    : dat
 
   multidrive(db, createArchive, closeArchive, function (err, drive) {
     if (err) return cb(explain(err, 'multidat: error creating multidrive'))
@@ -43,10 +53,7 @@ function Multidat (db, cb) {
   function createArchive (data, done) {
     var dir = data.dir
     var opts = data.opts
-    Worker(dir, {
-      key: opts.key,
-      opts: opts
-    }, done)
+    datFactory(dir, opts, done)
   }
 
   function closeArchive (dat, done) {
