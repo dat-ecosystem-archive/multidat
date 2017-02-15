@@ -28,8 +28,12 @@ Multidat(db, function (err, multidat) {
 ```
 
 ## API
-### Multidat(db, callback(err, multidat))
+### Multidat(db, opts, callback(err, multidat))
 Creat a new Multidat instance. Takes a `toiletdb` instance and a callback.
+
+Options:
+
+- `worker`: Use [dat-worker](https://github.com/juliangruber/dat-worker) instead of [dat-node](https://github.com/datproject/dat-node)
 
 ### multidat.create(opts, callback(err, dat))
 Create a new `dat` archive.
