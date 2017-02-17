@@ -6,6 +6,7 @@ var assert = require('assert')
 var dat = require('dat-node')
 var worker = require('dat-worker')
 var pump = require('pump')
+var extend = require('xtend')
 
 module.exports = Multidat
 
@@ -52,8 +53,8 @@ function Multidat (db, opts, cb) {
 
   function createArchive (data, done) {
     var dir = data.dir
-    var opts = data.opts
-    datFactory(dir, opts, done)
+    var _opts = extend(opts, data.opts)
+    datFactory(dir, _opts, done)
   }
 
   function closeArchive (dat, done) {
