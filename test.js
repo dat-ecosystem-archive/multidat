@@ -18,125 +18,133 @@ tape('multidat = Multidat()', function (t) {
   })
 })
 
-tape('multidat.create()', function (t) {
-  t.test('should assert input types', function (t) {
-    t.plan(4)
-    var db = toilet({})
-    Multidat(db, function (err, multidat) {
-      t.ifError(err, 'no error')
-      t.throws(multidat.create.bind(null), 'string')
-      t.throws(multidat.create.bind(null, ''), 'function')
-      t.throws(multidat.create.bind(null, 123, noop), 'object')
-    })
-  })
+;[false, true].forEach(function (worker) {
+  var opts = { worker: worker }
 
-  t.test('should create a dat', function (t) {
-    t.plan(3)
-    var db = toilet({})
-    Multidat(db, function (err, multidat) {
-      t.ifError(err, 'no error')
-      var location = path.join('/tmp', String(Date.now()))
-      mkdirp.sync(location)
-      multidat.create(location, function (err, dat) {
+  tape('worker=' + worker + ' multidat.create()', function (t) {
+    t.test('should assert input types', function (t) {
+      t.plan(4)
+      var db = toilet({})
+      Multidat(db, opts, function (err, multidat) {
         t.ifError(err, 'no error')
-        t.equal(typeof dat, 'object', 'dat exists')
-        rimraf.sync(location)
+        t.throws(multidat.create.bind(null), 'string')
+        t.throws(multidat.create.bind(null, ''), 'function')
+        t.throws(multidat.create.bind(null, 123, noop), 'object')
       })
     })
-  })
 
-  t.test('created dat should not be exposed to the network', function (t) {
-    t.plan(3)
-    var db = toilet({})
-    Multidat(db, function (err, multidat) {
-      t.ifError(err, 'no error')
-      var location = path.join('/tmp', String(Date.now()))
-      mkdirp.sync(location)
-      multidat.create(location, function (err, dat) {
+    t.test('should create a dat', function (t) {
+      t.plan(4)
+      var db = toilet({})
+      Multidat(db, opts, function (err, multidat) {
         t.ifError(err, 'no error')
-        t.notOk(dat.network, 'no network exposed yet')
-        rimraf.sync(location)
-      })
-    })
-  })
-})
-
-tape('multidat.list()', function (t) {
-  t.test('should list all dats', function (t) {
-    t.plan(3)
-
-    var db = toilet({})
-    Multidat(db, function (err, multidat) {
-      t.ifError(err, 'no error')
-
-      var location = path.join('/tmp', String(Date.now()))
-      mkdirp.sync(location)
-      multidat.create(location, function (err, dat) {
-        t.ifError(err, 'no error')
-        var dats = multidat.list()
-        t.equal(dats.length, 1, 'one dat')
-        rimraf.sync(location)
-      })
-    })
-  })
-})
-
-tape('multidat.close()', function (t) {
-  t.test('should be able to close a dat by its key', function (t) {
-    t.plan(5)
-
-    var db = toilet({})
-    Multidat(db, function (err, multidat) {
-      t.ifError(err, 'no error')
-
-      var location = path.join('/tmp', String(Date.now()))
-      mkdirp.sync(location)
-      multidat.create(location, function (err, dat) {
-        t.ifError(err, 'no error')
-        multidat.close(dat.key, function (err) {
+        var location = path.join('/tmp', String(Date.now()))
+        mkdirp.sync(location)
+        multidat.create(location, function (err, dat) {
           t.ifError(err, 'no error')
-          var dats = multidat.list()
-          t.equal(dats.length, 0, 'no dats')
-          t.equal(dat.db._status, 'closed', 'db is closed')
-          rimraf.sync(location)
+          t.equal(typeof dat, 'object', 'dat exists')
+          dat.close(function (err) {
+            t.ifError(err, 'no error')
+            rimraf.sync(location)
+          })
+        })
+      })
+    })
+
+    t.test('created dat should not be exposed to the network', function (t) {
+      t.plan(3)
+      var db = toilet({})
+      Multidat(db, opts, function (err, multidat) {
+        t.ifError(err, 'no error')
+        var location = path.join('/tmp', String(Date.now()))
+        mkdirp.sync(location)
+        multidat.create(location, function (err, dat) {
+          t.ifError(err, 'no error')
+          dat.close(function (err) {
+            t.ifError(err, 'no error')
+            rimraf.sync(location)
+          })
         })
       })
     })
   })
-})
 
-tape('multidat.readManifest', function (t) {
-  t.test('should read a manifest if there is one', function (t) {
-    t.plan(6)
-    var driveDb = memdb()
-    var drive = hyperdrive(driveDb)
-    var archive = drive.createArchive()
-    var ws = archive.createFileWriteStream('dat.json')
-    var swarm = hyperdiscovery(archive)
-    ws.end(JSON.stringify({ name: 'hello-planet' }))
+  tape('worker=' + worker + ' multidat.list()', function (t) {
+    t.test('should list all dats', function (t) {
+      t.plan(4)
 
-    var db = toilet({})
-    Multidat(db, function (err, multidat) {
-      t.ifError(err, 'no error')
-
-      var location = path.join('/tmp', String(Date.now()))
-      mkdirp.sync(location)
-      var opts = {
-        key: archive.key
-      }
-
-      multidat.create(location, opts, function (err, dat) {
+      var db = toilet({})
+      Multidat(db, opts, function (err, multidat) {
         t.ifError(err, 'no error')
 
-        dat.joinNetwork()
-        multidat.readManifest(dat, function (err, manifest) {
-          t.ifError(err, 'no err')
-          t.equal(typeof manifest, 'object', 'right type')
-          t.equal(manifest.name, 'hello-planet', 'right value')
-          dat.close(function () {
-            swarm.close(function () {
-              t.pass('done closing')
-              rimraf.sync(location)
+        var location = path.join('/tmp', String(Date.now()))
+        mkdirp.sync(location)
+        multidat.create(location, function (err, dat) {
+          t.ifError(err, 'no error')
+          var dats = multidat.list()
+          t.equal(dats.length, 1, 'one dat')
+          dat.close(function (err) {
+            t.ifError(err, 'no error')
+            rimraf.sync(location)
+          })
+        })
+      })
+    })
+  })
+
+  tape('worker=' + worker + ' multidat.close()', function (t) {
+    t.test('should be able to close a dat by its key', function (t) {
+      t.plan(4)
+
+      var db = toilet({})
+      Multidat(db, opts, function (err, multidat) {
+        t.ifError(err, 'no error')
+
+        var location = path.join('/tmp', String(Date.now()))
+        mkdirp.sync(location)
+        multidat.create(location, function (err, dat) {
+          t.ifError(err, 'no error')
+          multidat.close(dat.key, function (err) {
+            t.ifError(err, 'no error')
+            var dats = multidat.list()
+            t.equal(dats.length, 0, 'no dats')
+            rimraf.sync(location)
+          })
+        })
+      })
+    })
+  })
+
+  tape('worker=' + worker + ' multidat.readManifest', function (t) {
+    t.test('should read a manifest if there is one', function (t) {
+      t.plan(6)
+      var driveDb = memdb()
+      var drive = hyperdrive(driveDb)
+      var archive = drive.createArchive()
+      var ws = archive.createFileWriteStream('dat.json')
+      var swarm = hyperdiscovery(archive)
+      ws.end(JSON.stringify({ name: 'hello-planet' }))
+
+      var db = toilet({})
+      Multidat(db, opts, function (err, multidat) {
+        t.ifError(err, 'no error')
+
+        var location = path.join('/tmp', String(Date.now()))
+        mkdirp.sync(location)
+
+        multidat.create(location, { key: archive.key }, function (err, dat) {
+          t.ifError(err, 'no error')
+
+          if (!worker) dat.joinNetwork()
+          multidat.readManifest(dat, function (err, manifest) {
+            t.ifError(err, 'no err')
+            t.equal(typeof manifest, 'object', 'right type')
+            t.equal(manifest.name, 'hello-planet', 'right value')
+            dat.close(function () {
+              swarm.close(function () {
+                t.pass('done closing')
+                rimraf.sync(location)
+              })
             })
           })
         })

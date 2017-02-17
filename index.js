@@ -4,13 +4,24 @@ var parse = require('fast-json-parse')
 var concat = require('concat-stream')
 var assert = require('assert')
 var dat = require('dat-node')
+var worker = require('dat-worker')
 var pump = require('pump')
+var extend = require('xtend')
 
 module.exports = Multidat
 
-function Multidat (db, cb) {
+function Multidat (db, opts, cb) {
+  if (!cb) {
+    cb = opts
+    opts = {}
+  }
+
   assert.equal(typeof db, 'object', 'multidat: db should be type object')
   assert.equal(typeof cb, 'function', 'multidat: cb should be type function')
+
+  var datFactory = (opts.worker)
+    ? worker
+    : dat
 
   multidrive(db, createArchive, closeArchive, function (err, drive) {
     if (err) return cb(explain(err, 'multidat: error creating multidrive'))
@@ -42,8 +53,8 @@ function Multidat (db, cb) {
 
   function createArchive (data, done) {
     var dir = data.dir
-    var opts = data.opts
-    dat(dir, opts, done)
+    var _opts = extend(opts, data.opts)
+    datFactory(dir, _opts, done)
   }
 
   function closeArchive (dat, done) {
@@ -67,6 +78,7 @@ function readManifest (dat, done) {
   })
 
   function sink (data) {
+    listStream.destroy()
     var res = parse(data)
     if (res.err) return done(explain(res.err, "multidat.readManifest: couldn't parse dat.json file"))
     done(null, res.value)
