@@ -4,7 +4,6 @@ var parse = require('fast-json-parse')
 var concat = require('concat-stream')
 var assert = require('assert')
 var dat = require('dat-node')
-var worker = require('dat-worker')
 var pump = require('pump')
 var extend = require('xtend')
 
@@ -19,9 +18,7 @@ function Multidat (db, opts, cb) {
   assert.equal(typeof db, 'object', 'multidat: db should be type object')
   assert.equal(typeof cb, 'function', 'multidat: cb should be type function')
 
-  var datFactory = (opts.worker)
-    ? worker
-    : dat
+  var datFactory = opts.dat || dat
 
   multidrive(db, createArchive, closeArchive, function (err, drive) {
     if (err) return cb(explain(err, 'multidat: error creating multidrive'))

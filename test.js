@@ -1,6 +1,7 @@
 var hyperdiscovery = require('hyperdiscovery')
 var toilet = require('toiletdb/inmemory')
 var hyperdrive = require('hyperdrive')
+var datWorker = require('dat-worker')
 var rimraf = require('rimraf')
 var mkdirp = require('mkdirp')
 var memdb = require('memdb')
@@ -19,7 +20,7 @@ tape('multidat = Multidat()', function (t) {
 })
 
 ;[false, true].forEach(function (worker) {
-  var opts = { worker: worker }
+  var opts = { dat: worker && datWorker }
 
   tape('worker=' + worker + ' multidat.create()', function (t) {
     t.test('should assert input types', function (t) {
