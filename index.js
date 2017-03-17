@@ -1,3 +1,4 @@
+var EventEmitter = require('events').EventEmitter
 var multidrive = require('multidrive')
 var explain = require('explain-error')
 var parse = require('fast-json-parse')
@@ -63,6 +64,16 @@ function Multidat (db, opts, cb) {
 }
 
 function readManifest (dat, done) {
+  var updates = new EventEmitter()
+
+  if (done) {
+    updates.on('error', done)
+    updates.once('manifest', function (manifest) {
+      updates.stop()
+      done(null, manifest)
+    })
+  }
+
   var listStream = dat.archive.list({ live: true })
   listStream.on('data', function (entry) {
     if (entry.name !== 'dat.json') return
@@ -70,14 +81,18 @@ function readManifest (dat, done) {
     var rs = dat.archive.createFileReadStream('dat.json')
     var ws = concat(sink)
     pump(rs, ws, function (err) {
-      if (err) return done(explain(err, 'multidat.readManifest: error piping data'))
+      if (err) return updates.emit('error', explain(err, 'multidat.readManifest: error piping data'))
     })
   })
 
   function sink (data) {
-    listStream.destroy()
     var res = parse(data)
-    if (res.err) return done(explain(res.err, "multidat.readManifest: couldn't parse dat.json file"))
-    done(null, res.value)
+    if (res.err) return updates.emit('error', explain(res.err, "multidat.readManifest: couldn't parse dat.json file"))
+    updates.emit('manifest', res.value)
   }
+
+  updates.stop = function () {
+    listStream.destroy()
+  }
+  return updates
 }

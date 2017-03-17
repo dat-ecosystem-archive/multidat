@@ -151,5 +151,44 @@ tape('multidat = Multidat()', function (t) {
         })
       })
     })
+
+    t.test('should subscribe to updates', function (t) {
+      t.plan(5)
+      var driveDb = memdb()
+      var drive = hyperdrive(driveDb)
+      var archive = drive.createArchive()
+      var ws = archive.createFileWriteStream('dat.json')
+      var swarm = hyperdiscovery(archive)
+      ws.end(JSON.stringify({ name: 'hello-planet' }))
+
+      var db = toilet({})
+      Multidat(db, opts, function (err, multidat) {
+        t.ifError(err, 'no error')
+
+        var location = path.join('/tmp', String(Date.now()))
+        mkdirp.sync(location)
+
+        multidat.create(location, { key: archive.key }, function (err, dat) {
+          t.ifError(err, 'no error')
+
+          if (!worker) dat.joinNetwork()
+          var updates = multidat.readManifest(dat)
+          updates.on('error', function (err) {
+            t.ifError(err, 'no err')
+          })
+          updates.on('manifest', function (manifest) {
+            t.equal(typeof manifest, 'object', 'right type')
+            t.equal(manifest.name, 'hello-planet', 'right value')
+            updates.stop()
+            dat.close(function () {
+              swarm.close(function () {
+                t.pass('done closing')
+                rimraf.sync(location)
+              })
+            })
+          })
+        })
+      })
+    })
   })
 })
