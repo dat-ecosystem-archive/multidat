@@ -56,6 +56,12 @@ function Multidat (db, opts, cb) {
   }
 
   function closeArchive (dat, done) {
+    if (dat._listStreams) {
+      dat._listStreams.forEach(function (listStream) {
+        listStream.destroy()
+      })
+      dat._listStreams = []
+    }
     dat.close(function (err) {
       if (err) return done(explain(err, 'multidat.closeArchive: error closing dat archive'))
       dat.db.close(done)
@@ -75,6 +81,8 @@ function readManifest (dat, done) {
   }
 
   var listStream = dat.archive.list({ live: true })
+  dat._listStreams = dat._listStreams || []
+  dat._listStreams.push(listStream)
   listStream.on('data', function (entry) {
     if (entry.name !== 'dat.json') return
 
@@ -92,7 +100,10 @@ function readManifest (dat, done) {
   }
 
   updates.stop = function () {
+    var idx = dat._listStreams.indexOf(listStream)
+    if (idx === -1) return
     listStream.destroy()
+    dat._listStreams.splice(idx, 1)
   }
   return updates
 }
