@@ -59,7 +59,6 @@ function Multidat (db, opts, cb) {
   }
 
   function closeArchive (dat, done) {
-    if (dat instanceof Error) return done()
     if (dat._listStreams) {
       dat._listStreams.forEach(function (listStream) {
         listStream.destroy()
