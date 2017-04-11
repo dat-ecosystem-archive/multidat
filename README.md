@@ -27,6 +27,21 @@ Multidat(db, function (err, multidat) {
 })
 ```
 
+## Error handling
+If there is an error initializing a dat, instead of the whole process failing, an error object with attached `.dir` property will be pushed into the list of dats instead. That means when consuming `multidat.list()`, you should check for errors:
+
+```js
+var dats = multidat.list()
+dats.forEach(function (dat) {
+  if (dat instanceof Error) {
+    var err = dat
+    console.log('failed to initialize dat in %s: %s', err.dir, err.message)
+  }
+})
+```
+
+This way you can decide for yourself whether an individual initialization failure should cause the whole process to fail or not.
+
 ## API
 ### Multidat(db, opts, callback(err, multidat))
 Creat a new Multidat instance. Takes a `toiletdb` instance and a callback.
