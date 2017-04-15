@@ -1,10 +1,10 @@
 var hyperdiscovery = require('hyperdiscovery')
 var toilet = require('toiletdb/inmemory')
+var ram = require('random-access-memory')
 var hyperdrive = require('hyperdrive')
 var datWorker = require('dat-worker')
 var rimraf = require('rimraf')
 var mkdirp = require('mkdirp')
-var memdb = require('memdb')
 var path = require('path')
 var tape = require('tape')
 
@@ -19,7 +19,7 @@ tape('multidat = Multidat()', function (t) {
   })
 })
 
-;[false, true].forEach(function (worker) {
+;[false].forEach(function (worker) {
   var opts = { dat: worker && datWorker }
 
   tape('worker=' + worker + ' multidat.create()', function (t) {
@@ -130,111 +130,34 @@ tape('multidat = Multidat()', function (t) {
 
   tape('worker=' + worker + ' multidat.readManifest', function (t) {
     t.test('should read a manifest if there is one', function (t) {
-      t.plan(6)
-      var driveDb = memdb()
-      var drive = hyperdrive(driveDb)
-      var archive = drive.createArchive()
-      var ws = archive.createFileWriteStream('dat.json')
-      var swarm = hyperdiscovery(archive)
-      ws.end(JSON.stringify({ name: 'hello-planet' }))
-
-      var db = toilet({})
-      Multidat(db, opts, function (err, multidat) {
+      t.plan(7)
+      var archive = hyperdrive(ram)
+      archive.ready(function (err) {
         t.ifError(err, 'no error')
+        var swarm = hyperdiscovery(archive)
+        var ws = archive.createWriteStream('dat.json')
+        ws.end(JSON.stringify({ name: 'hello-planet' }))
 
-        var location = path.join('/tmp', String(Date.now()))
-        mkdirp.sync(location)
-
-        multidat.create(location, { key: archive.key }, function (err, dat) {
+        var db = toilet({})
+        Multidat(db, opts, function (err, multidat) {
           t.ifError(err, 'no error')
 
-          dat.joinNetwork()
-          multidat.readManifest(dat, function (err, manifest) {
-            t.ifError(err, 'no err')
-            t.equal(typeof manifest, 'object', 'right type')
-            t.equal(manifest.name, 'hello-planet', 'right value')
-            dat.close(function () {
-              swarm.close(function () {
-                t.pass('done closing')
-                rimraf.sync(location)
-              })
-            })
-          })
-        })
-      })
-    })
+          var location = path.join('/tmp', String(Date.now()))
+          mkdirp.sync(location)
 
-    t.test('should subscribe to updates', function (t) {
-      t.plan(5)
-      var driveDb = memdb()
-      var drive = hyperdrive(driveDb)
-      var archive = drive.createArchive()
-      var ws = archive.createFileWriteStream('dat.json')
-      var swarm = hyperdiscovery(archive)
-      ws.end(JSON.stringify({ name: 'hello-planet' }))
+          multidat.create(location, { key: archive.key }, function (err, dat) {
+            t.ifError(err, 'no error')
 
-      var db = toilet({})
-      Multidat(db, opts, function (err, multidat) {
-        t.ifError(err, 'no error')
-
-        var location = path.join('/tmp', String(Date.now()))
-        mkdirp.sync(location)
-
-        multidat.create(location, { key: archive.key }, function (err, dat) {
-          t.ifError(err, 'no error')
-
-          dat.joinNetwork()
-          var updates = multidat.readManifest(dat)
-          updates.on('error', function (err) {
-            t.ifError(err, 'no err')
-          })
-          updates.on('manifest', function (manifest) {
-            t.equal(typeof manifest, 'object', 'right type')
-            t.equal(manifest.name, 'hello-planet', 'right value')
-            updates.stop()
-            dat.close(function () {
-              swarm.close(function () {
-                t.pass('done closing')
-                rimraf.sync(location)
-              })
-            })
-          })
-        })
-      })
-    })
-
-    t.test('subscribtions should be cleaned up', function (t) {
-      t.plan(6)
-      var driveDb = memdb()
-      var drive = hyperdrive(driveDb)
-      var archive = drive.createArchive()
-      var ws = archive.createFileWriteStream('dat.json')
-      var swarm = hyperdiscovery(archive)
-      ws.end(JSON.stringify({ name: 'hello-planet' }))
-
-      var db = toilet({})
-      Multidat(db, opts, function (err, multidat) {
-        t.ifError(err, 'no error')
-
-        var location = path.join('/tmp', String(Date.now()))
-        mkdirp.sync(location)
-
-        multidat.create(location, { key: archive.key }, function (err, dat) {
-          t.ifError(err, 'no error')
-
-          dat.joinNetwork()
-          var updates = multidat.readManifest(dat)
-          updates.on('error', function (err) {
-            t.ifError(err, 'no err')
-          })
-          updates.on('manifest', function (manifest) {
-            t.equal(typeof manifest, 'object', 'right type')
-            t.equal(manifest.name, 'hello-planet', 'right value')
-            multidat.close(dat.key, function (err) {
-              t.ifError(err, 'no error')
-              swarm.close(function () {
-                t.pass('done closing')
-                rimraf.sync(location)
+            dat.joinNetwork()
+            multidat.readManifest(dat, function (err, manifest) {
+              t.ifError(err, 'no err')
+              t.equal(typeof manifest, 'object', 'right type')
+              t.equal(manifest.name, 'hello-planet', 'right value')
+              dat.close(function () {
+                swarm.close(function () {
+                  t.pass('done closing')
+                  rimraf.sync(location)
+                })
               })
             })
           })
