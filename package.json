@@ -10,17 +10,14 @@
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "dependencies": {
-    "concat-stream": "^1.6.0",
     "dat-node": "^2.0.0",
     "explain-error": "^1.0.3",
     "fast-json-parse": "^1.0.2",
     "multidrive": "^4.0.0",
-    "pump": "^1.0.2",
     "xtend": "^4.0.1"
   },
   "devDependencies": {
     "copy-dir": "^0.3.0",
-    "dat-worker": "^7.0.6",
     "dependency-check": "^2.7.0",
     "hyperdiscovery": "^1.1.0",
     "hyperdrive": "^8.2.1",

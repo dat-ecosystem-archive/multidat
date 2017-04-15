@@ -2,10 +2,8 @@ var EventEmitter = require('events').EventEmitter
 var multidrive = require('multidrive')
 var explain = require('explain-error')
 var parse = require('fast-json-parse')
-var concat = require('concat-stream')
 var assert = require('assert')
 var dat = require('dat-node')
-var pump = require('pump')
 var extend = require('xtend')
 
 module.exports = Multidat
@@ -81,6 +79,7 @@ function readManifest (dat, done) {
   }
 
   dat.archive.readFile('dat.json', function (err, buf) {
+    if (err) return updates.emit('error', err)
     var res = parse(buf.toString())
     if (res.err) return updates.emit('error', explain(res.err, "multidat.readManifest: couldn't parse dat.json file"))
     updates.emit('manifest', res.value)
