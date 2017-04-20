@@ -52,7 +52,10 @@ function Multidat (db, opts, cb) {
   function createArchive (data, done) {
     var dir = data.dir
     var _opts = extend(opts, data.opts)
-    datFactory(dir, _opts, done)
+    datFactory(dir, _opts, function (err, dat) {
+      if (err) err.dir = dir
+      done(null, err || dat)
+    })
   }
 
   function closeArchive (dat, done) {
