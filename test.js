@@ -136,7 +136,7 @@ tape('multidat = Multidat()', function (t) {
         multidat.create(location, { key: archive.key }, function (err, dat) {
           t.ifError(err, 'no error')
 
-          if (!worker) dat.joinNetwork()
+          dat.joinNetwork()
           multidat.readManifest(dat, function (err, manifest) {
             t.ifError(err, 'no err')
             t.equal(typeof manifest, 'object', 'right type')
@@ -171,7 +171,7 @@ tape('multidat = Multidat()', function (t) {
         multidat.create(location, { key: archive.key }, function (err, dat) {
           t.ifError(err, 'no error')
 
-          if (!worker) dat.joinNetwork()
+          dat.joinNetwork()
           var updates = multidat.readManifest(dat)
           updates.on('error', function (err) {
             t.ifError(err, 'no err')
@@ -210,7 +210,7 @@ tape('multidat = Multidat()', function (t) {
         multidat.create(location, { key: archive.key }, function (err, dat) {
           t.ifError(err, 'no error')
 
-          if (!worker) dat.joinNetwork()
+          dat.joinNetwork()
           var updates = multidat.readManifest(dat)
           updates.on('error', function (err) {
             t.ifError(err, 'no err')
