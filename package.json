@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "copy-dir": "^0.3.0",
-    "dat-worker": "^5.0.0",
+    "dat-worker": "^7.0.6",
     "dependency-check": "^2.7.0",
     "hyperdiscovery": "^1.1.0",
     "hyperdrive": "^7.13.1",
