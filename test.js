@@ -68,6 +68,18 @@ tape('multidat = Multidat()', function (t) {
         })
       })
     })
+
+    t.test('creation error', function (t) {
+      t.plan(3)
+      var db = toilet({})
+      Multidat(db, opts, function (err, multidat) {
+        t.ifError(err, 'no error')
+        multidat.create('/non/existing/path', function (err, dat) {
+          t.ok(err, 'error')
+          t.notOk(dat, 'no dat')
+        })
+      })
+    })
   })
 
   tape('worker=' + worker + ' multidat.list()', function (t) {

@@ -45,7 +45,13 @@ function Multidat (db, opts, cb) {
         dir: dir,
         opts: opts
       }
-      drive.create(data, cb)
+      drive.create(data, function (err, dat) {
+        if (dat instanceof Error) {
+          err = dat
+          dat = null
+        }
+        cb(err, dat)
+      })
     }
   })
 
