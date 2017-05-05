@@ -1,4 +1,3 @@
-var EventEmitter = require('events').EventEmitter
 var multidrive = require('multidrive')
 var explain = require('explain-error')
 var parse = require('fast-json-parse')
@@ -67,25 +66,11 @@ function Multidat (db, opts, cb) {
   }
 }
 
-function readManifest (dat, done) {
-  var updates = new EventEmitter()
-
-  if (done) {
-    updates.on('error', done)
-    updates.once('manifest', function (manifest) {
-      updates.stop()
-      done(null, manifest)
-    })
-  }
-
+function readManifest (dat, cb) {
   dat.archive.readFile('dat.json', function (err, buf) {
-    if (err) return updates.emit('error', err)
+    if (err) return cb(err)
     var res = parse(buf.toString())
-    if (res.err) return updates.emit('error', explain(res.err, "multidat.readManifest: couldn't parse dat.json file"))
-    updates.emit('manifest', res.value)
+    if (res.err) return cb(explain(res.err, "multidat.readManifest: couldn't parse dat.json file"))
+    cb(null, res.value)
   })
-
-  updates.stop = function () {
-  }
-  return updates
 }
