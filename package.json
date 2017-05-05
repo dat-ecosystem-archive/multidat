@@ -10,7 +10,7 @@
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "dependencies": {
-    "dat-node": "^2.0.0",
+    "dat-node": "^3.2.0",
     "explain-error": "^1.0.3",
     "fast-json-parse": "^1.0.2",
     "multidrive": "^4.0.0",
@@ -19,11 +19,8 @@
   "devDependencies": {
     "copy-dir": "^0.3.0",
     "dependency-check": "^2.7.0",
-    "hyperdiscovery": "^1.1.0",
-    "hyperdrive": "^8.2.1",
     "mkdirp": "^0.5.1",
     "nyc": "^10.0.0",
-    "random-access-memory": "^2.4.0",
     "rimraf": "^2.5.4",
     "standard": "^8.6.0",
     "tape": "^4.6.3",

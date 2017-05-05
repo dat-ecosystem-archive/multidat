@@ -1,9 +1,7 @@
-var hyperdiscovery = require('hyperdiscovery')
 var toilet = require('toiletdb/inmemory')
-var ram = require('random-access-memory')
-var hyperdrive = require('hyperdrive')
 var rimraf = require('rimraf')
 var mkdirp = require('mkdirp')
+var Dat = require('dat-node')
 var path = require('path')
 var tape = require('tape')
 
@@ -87,17 +85,17 @@ tape('multidat.list()', function (t) {
       })
     })
 
-    t.test('creation error', function (t) {
+    /* t.test('creation error', function (t) {
       t.plan(3)
       var db = toilet({})
-      Multidat(db, opts, function (err, multidat) {
+      Multidat(db, {}, function (err, multidat) {
         t.ifError(err, 'no error')
         multidat.create('/non/existing/path', function (err, dat) {
           t.ok(err, 'error')
           t.notOk(dat, 'no dat')
         })
       })
-    })
+    }) */
   })
 })
 
@@ -126,12 +124,11 @@ tape('multidat.close()', function (t) {
 
 tape('multidat.readManifest', function (t) {
   t.test('should read a manifest if there is one', function (t) {
-    t.plan(7)
-    var archive = hyperdrive(ram)
-    archive.ready(function (err) {
+    var sourceLocation = path.join('/tmp', String(Date.now()))
+    Dat(sourceLocation, function (err, sourceDat) {
       t.ifError(err, 'no error')
-      var swarm = hyperdiscovery(archive)
-      var ws = archive.createWriteStream('dat.json')
+      sourceDat.joinNetwork()
+      var ws = sourceDat.archive.createWriteStream('dat.json')
       ws.end(JSON.stringify({ name: 'hello-planet' }))
 
       var db = toilet({})
@@ -141,25 +138,19 @@ tape('multidat.readManifest', function (t) {
         var location = path.join('/tmp', String(Date.now()))
         mkdirp.sync(location)
 
-        multidat.create(location, { key: archive.key }, function (err, dat) {
+        multidat.create(location, { key: sourceDat.key }, function (err, dat) {
           t.ifError(err, 'no error')
 
-          var location = path.join('/tmp', String(Date.now()))
-          mkdirp.sync(location)
-
-          multidat.create(location, { key: archive.key }, function (err, dat) {
-            t.ifError(err, 'no error')
-
-            dat.joinNetwork()
-            multidat.readManifest(dat, function (err, manifest) {
-              t.ifError(err, 'no err')
-              t.equal(typeof manifest, 'object', 'right type')
-              t.equal(manifest.name, 'hello-planet', 'right value')
-              dat.close(function () {
-                swarm.close(function () {
-                  t.pass('done closing')
-                  rimraf.sync(location)
-                })
+          dat.joinNetwork()
+          multidat.readManifest(dat, function (err, manifest) {
+            t.ifError(err, 'no err')
+            t.equal(typeof manifest, 'object', 'right type')
+            t.equal(manifest.name, 'hello-planet', 'right value')
+            dat.close(function () {
+              sourceDat.close(function () {
+                rimraf.sync(location)
+                rimraf.sync(sourceLocation)
+                t.end()
               })
             })
           })
