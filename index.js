@@ -1,11 +1,8 @@
-var EventEmitter = require('events').EventEmitter
 var multidrive = require('multidrive')
 var explain = require('explain-error')
 var parse = require('fast-json-parse')
-var concat = require('concat-stream')
 var assert = require('assert')
 var dat = require('dat-node')
-var pump = require('pump')
 var extend = require('xtend')
 
 module.exports = Multidat
@@ -65,54 +62,15 @@ function Multidat (db, opts, cb) {
   }
 
   function closeArchive (dat, done) {
-    if (dat._listStreams) {
-      dat._listStreams.forEach(function (listStream) {
-        listStream.destroy()
-      })
-      dat._listStreams = []
-    }
-    dat.close(function (err) {
-      if (err) return done(explain(err, 'multidat.closeArchive: error closing dat archive'))
-      dat.db.close(done)
-    })
+    dat.close(done)
   }
 }
 
-function readManifest (dat, done) {
-  var updates = new EventEmitter()
-
-  if (done) {
-    updates.on('error', done)
-    updates.once('manifest', function (manifest) {
-      updates.stop()
-      done(null, manifest)
-    })
-  }
-
-  var listStream = dat.archive.list({ live: true })
-  dat._listStreams = dat._listStreams || []
-  dat._listStreams.push(listStream)
-  listStream.on('data', function (entry) {
-    if (entry.name !== 'dat.json') return
-
-    var rs = dat.archive.createFileReadStream('dat.json')
-    var ws = concat(sink)
-    pump(rs, ws, function (err) {
-      if (err) return updates.emit('error', explain(err, 'multidat.readManifest: error piping data'))
-    })
+function readManifest (dat, cb) {
+  dat.archive.readFile('dat.json', function (err, buf) {
+    if (err) return cb(err)
+    var res = parse(buf.toString())
+    if (res.err) return cb(explain(res.err, "multidat.readManifest: couldn't parse dat.json file"))
+    cb(null, res.value)
   })
-
-  function sink (data) {
-    var res = parse(data)
-    if (res.err) return updates.emit('error', explain(res.err, "multidat.readManifest: couldn't parse dat.json file"))
-    updates.emit('manifest', res.value)
-  }
-
-  updates.stop = function () {
-    var idx = dat._listStreams.indexOf(listStream)
-    if (idx === -1) return
-    listStream.destroy()
-    dat._listStreams.splice(idx, 1)
-  }
-  return updates
 }

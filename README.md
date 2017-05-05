@@ -63,10 +63,6 @@ Close and remove a `dat` archive.
 Read the `dat.json` file from the `dat` archive. This method is expected to be
 deprecated once `dat` archives provide a built-in method to return archives.
 
-### updates = multidat.readManifest(dat)
-Subscribe to updates to the `dat.json` file and emits `"manifest"` events.
-Call `updates.stop()` to stop listening.
-
 ## Why?
 This package exists to manage multiple `dat` archives in different directories.
 The [dat-node][dat-node] package is mostly stateless; all state is persisted
