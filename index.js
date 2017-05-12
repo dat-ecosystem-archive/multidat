@@ -42,23 +42,14 @@ function Multidat (db, opts, cb) {
         dir: dir,
         opts: opts
       }
-      drive.create(data, function (err, dat) {
-        if (dat instanceof Error) {
-          err = dat
-          dat = null
-        }
-        cb(err, dat)
-      })
+      drive.create(data, cb)
     }
   })
 
   function createArchive (data, done) {
     var dir = data.dir
     var _opts = extend(opts, data.opts)
-    datFactory(dir, _opts, function (err, dat) {
-      if (err) err.dir = dir
-      done(null, err || dat)
-    })
+    datFactory(dir, _opts, done)
   }
 
   function closeArchive (dat, done) {
