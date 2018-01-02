@@ -50,7 +50,7 @@ Options:
 
 - `Dat`: Use provided dat factory instead of [dat-node](https://github.com/datproject/dat-node)
 
-### multidat.create(opts, callback(err, dat))
+### multidat.create(dir, opts, callback(err, dat))
 Create a new `dat` archive.
 
 ### dats = multidat.list()
