@@ -125,7 +125,7 @@ tape('multidat.close()', function (t) {
 tape('multidat.readManifest', function (t) {
   t.test('should read a manifest if there is one', function (t) {
     var sourceLocation = path.join('/tmp', String(Date.now()))
-    Dat(sourceLocation, function (err, sourceDat) {
+    Dat(sourceLocation, { indexing: false }, function (err, sourceDat) {
       t.ifError(err, 'no error')
       sourceDat.joinNetwork()
       var ws = sourceDat.archive.createWriteStream('dat.json')
