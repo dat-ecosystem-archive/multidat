@@ -23,6 +23,7 @@ function Multidat (db, opts, cb) {
     var multidat = {
       readManifest: readManifest,
       create: create,
+      disconnect: drive.disconnect,
       close: drive.close,
       list: drive.list
     }
