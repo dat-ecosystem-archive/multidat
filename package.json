@@ -2,7 +2,7 @@
   "name": "multidat",
   "description": "Manage multiple dat instances",
   "repository": "datproject/multidat",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "scripts": {
     "deps": "dependency-check . && dependency-check . --extra --no-dev",
     "start": "node .",
