@@ -19,7 +19,7 @@ function Multidat (db, opts, cb) {
   var datFactory = opts.dat || dat
 
   multidrive(db, createArchive, closeArchive, function (err, drive) {
-    if (err) return cb(explain(err, 'multidat: error creating multidrive'))
+    if (err) return cb(err)
     var multidat = {
       readManifest: readManifest,
       create: create,
